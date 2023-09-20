@@ -371,6 +371,32 @@ More specifically, any object that implements the methods `get()`, `set()`,
 `delete()` and `clear()` methods can be provided. This allows for custom Maps
 which implement various [cache algorithms][] to be provided.
 
+#### Complex / Compound Keys
+
+In some cases, it may be helpful to use a complex key to load the requested
+values. In this scenario, you need to provide a `cacheKeyFn` that returns a
+cache key indicating whether two keys should be considered equivalent.
+
+```js
+const loader = new DataLoader(
+  async (keys) => {
+    const values = await loadValues(keys);
+    return values;
+  },
+  {
+    cacheKeyFn: (key) => {
+      // The returned string indicates whether two keys are referencing
+      // the same object.
+      return `${key.type}:${key.id}`;
+    },
+  },
+);
+
+loader.load({ type: 'Book', id: '123456' });
+loader.load({ id: '123456', type: 'Book' });
+```
+
+
 ## API
 
 #### class DataLoader
